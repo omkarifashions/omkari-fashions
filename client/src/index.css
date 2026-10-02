@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  body { @apply bg-cream font-sans text-brand-ink antialiased overflow-x-hidden; }
+  h1, h2, h3 { @apply font-display; }
+  img { @apply max-w-full; }
+  :focus-visible { outline: 2px solid #C9922E; outline-offset: 2px; }
+  input, select, textarea, button { font-family: inherit; }
+}
+
+@layer components {
+  .container-x { @apply mx-auto w-full max-w-[1180px] px-4 sm:px-6; }
+  .btn-primary { @apply inline-flex items-center justify-center gap-2 rounded-[4px] bg-btn px-6 py-3 font-bold text-white transition hover:brightness-110 active:scale-[.99] disabled:cursor-not-allowed disabled:opacity-60; }
+  .btn-maroon { @apply inline-flex items-center justify-center gap-2 rounded-[3px] bg-brand-maroon px-6 py-3 text-white transition hover:brightness-125 disabled:cursor-not-allowed disabled:opacity-60; }
+  .btn-outline { @apply inline-flex items-center justify-center gap-2 rounded-[4px] border border-brand-orange px-5 py-2.5 font-bold text-brand-orange transition hover:bg-brand-orange hover:text-white disabled:opacity-60; }
+  .btn-dark { @apply inline-flex items-center justify-center gap-2 rounded-[3px] bg-black px-4 py-2 text-sm font-bold text-[#f5c04a] disabled:opacity-60; }
+  .input { @apply w-full rounded-[8px] border border-[#a99d95] bg-transparent px-4 py-3 text-[15px] text-brand-ink placeholder:text-[#6f6560] focus:border-brand-orange focus:outline-none focus:ring-1 focus:ring-brand-orange; }
+  .input-error { @apply border-red-600; }
+  .label { @apply mb-1 block text-sm font-bold text-brand-heading; }
+  .section-title { @apply font-display text-[22px] font-bold tracking-wide text-brand-heading sm:text-[26px]; }
+  .card { @apply rounded-lg bg-white shadow-card; }
+  .badge { @apply inline-block rounded-full px-2.5 py-0.5 text-xs font-bold; }
+  .skeleton { @apply relative overflow-hidden bg-beige-dark/70; }
+  .skeleton::after { content: ''; @apply absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/50 to-transparent; animation: shimmer 1.4s infinite; }
+  .no-scrollbar { scrollbar-width: none; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .paisley-band { background-image: url('/images/paisley.png'); background-repeat: repeat-x; background-size: auto 100%; background-position: bottom; }
+}

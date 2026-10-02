@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /checkout
+Disallow: /profile
+# Replace with your API domain (the API serves a dynamic sitemap at /sitemap.xml)
+Sitemap: https://YOUR-API-DOMAIN/sitemap.xml
