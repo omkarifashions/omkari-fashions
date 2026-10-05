@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import Carousel from "../common/Carousel.jsx";
 import SafeImage from "../common/SafeImage.jsx";
@@ -10,13 +10,13 @@ import { imgUrl, productImage, rupee } from "../../utils/format.js";
 
 export function SectionHeading({ title, subtitle, as: Tag = "h2" }) {
   return (
-    <div className="mb-5 text-center">
-      <div className="flex items-center gap-3 sm:gap-5">
-        <span className="h-px flex-1 bg-rule" aria-hidden="true" />
-        <Tag className="font-display text-[20px] font-bold tracking-wide text-brand-heading sm:text-[26px]">
+    <div className="mb-6 text-center">
+      <div className="flex items-center justify-center gap-3 sm:gap-5">
+        <span className="h-[1px] w-24 bg-gradient-to-r from-transparent to-[#8a533c] opacity-60 sm:w-40 lg:w-60" />
+        <Tag className="font-serif text-[22px] font-bold text-[#3e160a] sm:text-[28px]">
           {title}
         </Tag>
-        <span className="h-px flex-1 bg-rule" aria-hidden="true" />
+        <span className="h-[1px] w-24 bg-gradient-to-l from-transparent to-[#8a533c] opacity-60 sm:w-40 lg:w-60" />
       </div>
       {subtitle && (
         <p className="mt-1 text-[11px] text-brand-text sm:text-[12px]">
@@ -48,7 +48,6 @@ export function CategoryCircles({ items }) {
       aria-label="Shop by category"
       className="w-full overflow-hidden pt-10 sm:pt-12"
     >
-      {/* Mobile horizontal scroller */}
       <div
         className="
           w-full
@@ -91,7 +90,6 @@ export function CategoryCircles({ items }) {
                 }
                 className="group flex w-full flex-col items-center"
               >
-                {/* Circle */}
                 <span
                   className="
                     block
@@ -128,7 +126,6 @@ export function CategoryCircles({ items }) {
                   />
                 </span>
 
-                {/* Category name */}
                 <span
                   className="
                     mt-2
@@ -369,92 +366,233 @@ export function WalkIn({ page }) {
 }
 
 export function Testimonials({ items }) {
+  const [activeIndex, setActiveIndex] = useState(1);
+  const scrollRef = useRef(null);
+
   if (!items?.length) return null;
+
+  const handlePrev = () => {
+    const nextIdx = activeIndex > 0 ? activeIndex - 1 : items.length - 1;
+    setActiveIndex(nextIdx);
+    scrollToCard(nextIdx);
+  };
+
+  const handleNext = () => {
+    const nextIdx = activeIndex < items.length - 1 ? activeIndex + 1 : 0;
+    setActiveIndex(nextIdx);
+    scrollToCard(nextIdx);
+  };
+
+  const handleDotClick = (index) => {
+    setActiveIndex(index);
+    scrollToCard(index);
+  };
+
+  const scrollToCard = (index) => {
+    if (!scrollRef.current) return;
+    const container = scrollRef.current;
+    const cardWidth = container.children[0]?.offsetWidth || 0;
+    const gap = 20;
+    container.scrollTo({
+      left: index * (cardWidth + gap),
+      behavior: "smooth",
+    });
+  };
+
   return (
     <section
-      className="container-x pt-10 sm:pt-12"
+      className="bg-[#faf1e8] py-10 sm:py-14"
       aria-label="Customer testimonials"
     >
-      <SectionHeading title="Customer Testimonials" />
-      <Carousel ariaLabel="Customer testimonials" dark>
-        {items.map((t) => (
-          <figure
-            key={t._id}
-            className="flex w-[88%] shrink-0 snap-start flex-col items-center rounded-[4px] bg-white px-5 py-4 text-center shadow-card sm:w-[48.5%] lg:w-[32%]"
+      <div className="mx-auto max-w-[1280px] px-4 sm:px-8">
+        <SectionHeading title="Customer Testimonials" />
+
+        <div className="relative mt-8 flex items-center justify-center">
+          {/* Left Arrow Button */}
+          <button
+            type="button"
+            onClick={handlePrev}
+            aria-label="Previous testimonial"
+            className="absolute left-0 z-10 flex h-8 w-8 -translate-x-2 items-center justify-center rounded-full bg-[#7a2c0d] text-white shadow transition-all hover:bg-[#5f2108] sm:left-2 sm:h-9 sm:w-9 sm:translate-x-0"
           >
-            <SafeImage
-              src={imgUrl(t.image)}
-              alt={t.name}
-              className="h-12 w-12 rounded-full object-cover ring-2 ring-brand-gold/40"
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+
+          {/* Testimonial Cards Carousel Container */}
+          <div
+            ref={scrollRef}
+            className="no-scrollbar flex w-full items-stretch justify-start gap-5 overflow-x-auto scroll-smooth px-8 py-2 sm:px-12"
+          >
+            {items.map((t) => (
+              <figure
+                key={t._id}
+                className="flex w-[85%] shrink-0 flex-col items-center justify-between rounded-[8px] bg-white px-6 py-6 text-center shadow-sm sm:w-[48%] lg:w-[31.5%]"
+              >
+                <div className="flex flex-col items-center">
+                  <div className="h-16 w-16 overflow-hidden rounded-full sm:h-20 sm:w-20">
+                    <SafeImage
+                      src={imgUrl(t.image)}
+                      alt={t.name}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+
+                  <h3 className="mt-4 font-serif text-[16px] font-bold text-[#2a1309] sm:text-[17px]">
+                    {t.heading || "Loved it..!"}
+                  </h3>
+
+                  <blockquote className="mt-2 text-[12px] leading-relaxed text-[#555555] sm:text-[13px]">
+                    “{t.message}”
+                  </blockquote>
+                </div>
+
+                <div className="mt-4 flex flex-col items-center gap-1.5">
+                  <RatingStars value={t.rating || 5} size={15} />
+
+                  <figcaption className="text-[12px] font-semibold text-[#a8583d] sm:text-[13px]">
+                    - {t.name}
+                  </figcaption>
+                </div>
+              </figure>
+            ))}
+          </div>
+
+          {/* Right Arrow Button */}
+          <button
+            type="button"
+            onClick={handleNext}
+            aria-label="Next testimonial"
+            className="absolute right-0 z-10 flex h-8 w-8 translate-x-2 items-center justify-center rounded-full bg-[#7a2c0d] text-white shadow transition-all hover:bg-[#5f2108] sm:right-2 sm:h-9 sm:w-9 sm:translate-x-0"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Bottom Navigation Dots */}
+        <div className="mt-6 flex justify-center gap-2">
+          {items.map((_, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => handleDotClick(idx)}
+              aria-label={`Go to slide ${idx + 1}`}
+              className={`h-2.5 rounded-full transition-all ${
+                idx === activeIndex
+                  ? "w-2.5 border border-[#8a4227] bg-[#f2cca6]"
+                  : "w-2.5 bg-[#2b2b2b]"
+              }`}
             />
-            <p className="mt-2 text-[13px] font-black">
-              {t.heading || "Loved it..!"}
-            </p>
-            <RatingStars value={t.rating} size={12} />
-            <blockquote className="mt-1.5 text-[12px] leading-snug text-brand-text">
-              “{t.message}”
-            </blockquote>
-            <figcaption className="mt-2 text-[11px] font-bold text-brand-orange">
-              - {t.name}
-            </figcaption>
-          </figure>
-        ))}
-      </Carousel>
+          ))}
+        </div>
+      </div>
     </section>
   );
 }
 
 const SLOTS = [
-  "left-[2%] top-[16%] w-[24%] -rotate-2",
-  "left-[27%] top-[0%] w-[17%] rotate-1",
-  "left-[45%] top-[8%] w-[15%] -rotate-1",
-  "left-[61%] top-[2%] w-[15%] rotate-2",
-  "left-[77%] top-[12%] w-[21%] -rotate-1",
+  "left-[14%] top-[20%] w-[18%] z-[2] -rotate-1",
+  "left-[30%] top-[2%] w-[13.5%] z-[1]",
+  "left-[41%] top-[17%] w-[16.5%] z-[4]",
+  "left-[56%] top-[4%] w-[14%] z-[1]",
+  "left-[63.5%] top-[30%] w-[16%] z-[2]",
 ];
 
 export function BestSellers({ page }) {
   const items = page?.items?.filter((i) => i.image) || [];
   if (!items.length) return null;
+
   return (
     <section
-      className="relative mt-12 overflow-hidden bg-gradient-to-b from-[#f4dcc9] to-[#eac9b1] sm:mt-14"
+      className="relative mt-12 bg-gradient-to-b from-[#f2dac8] via-[#ebd2bf] to-[#e5c9b3] pt-10 sm:mt-16 sm:pt-14"
       aria-label="Best sellers"
     >
-      <div className="relative mx-auto hidden h-[400px] max-w-[1180px] sm:block">
+      <div className="relative mx-auto hidden h-[520px] w-full max-w-[1280px] sm:block">
+        <div
+          className="pointer-events-none absolute left-[10%] top-[18%] h-[280px] w-[20%] border border-[#c4a48b]/50"
+          aria-hidden="true"
+        />
+        <div
+          className="pointer-events-none absolute right-[15%] top-[28%] h-[260px] w-[18%] border border-[#c4a48b]/50"
+          aria-hidden="true"
+        />
+
         {items.slice(0, 5).map((it, i) => (
           <SafeImage
             key={i}
             src={imgUrl(it.image)}
             alt="Best selling Omkari Fashions jewellery"
-            className={`absolute aspect-[3/4] border-[5px] border-white object-cover shadow-xl ${SLOTS[i]}`}
+            className={`absolute aspect-[3/4] border-[4px] border-white bg-white object-cover shadow-xl transition-transform duration-300 hover:scale-105 ${SLOTS[i]}`}
           />
         ))}
-        <Link
-          to="/products?bestseller=true"
-          className="absolute bottom-6 left-1/2 -translate-x-1/2 rounded-[3px] bg-btn px-9 py-2 font-display text-lg font-bold uppercase tracking-wider text-white shadow-lg ring-2 ring-white/60"
-        >
-          Best Sellers
-        </Link>
       </div>
-      <div className="grid grid-cols-3 gap-2 p-4 sm:hidden">
-        {items.slice(0, 3).map((it, i) => (
-          <SafeImage
-            key={i}
-            src={imgUrl(it.image)}
-            alt="Best selling Omkari Fashions jewellery"
-            className="aspect-[3/4] w-full border-4 border-white object-cover shadow"
-          />
-        ))}
-        <Link
-          to="/products?bestseller=true"
-          className="col-span-3 mt-2 rounded-[3px] bg-btn py-2.5 text-center font-display font-bold uppercase tracking-wider text-white"
-        >
-          Best Sellers
-        </Link>
+
+      <div className="relative p-4 sm:hidden">
+        <div className="grid grid-cols-3 gap-2 pb-10">
+          {items.slice(0, 3).map((it, i) => (
+            <SafeImage
+              key={i}
+              src={imgUrl(it.image)}
+              alt="Best selling Omkari Fashions jewellery"
+              className="aspect-[3/4] w-full border-2 border-white object-cover shadow-md"
+            />
+          ))}
+        </div>
+      </div>
+
+      <div className="relative z-20 mt-4 bg-white py-4 sm:mt-0 sm:py-6">
+        <div className="absolute -top-7 left-1/2 -translate-x-1/2 sm:-top-8">
+          <Link
+            to="/products?bestseller=true"
+            className="
+              inline-block
+              rounded-[4px]
+              bg-gradient-to-b from-[#b84400] via-[#631e00] to-[#3a0d00]
+              px-8
+              py-2.5
+              font-serif
+              text-[15px]
+              font-bold
+              uppercase
+              tracking-[0.2em]
+              text-[#ffffff]
+              shadow-md
+              transition-all
+              hover:brightness-110
+              sm:px-12
+              sm:py-3
+              sm:text-[18px]
+            "
+          >
+            BEST SELLERS
+          </Link>
+        </div>
       </div>
     </section>
   );
 }
+
 export function AboutBlock({ page }) {
   if (!page) return null;
 
@@ -468,7 +606,6 @@ export function AboutBlock({ page }) {
       <SectionHeading title={page.title} />
 
       <div className="grid items-center gap-8 md:grid-cols-2 md:gap-12">
-        {/* LEFT CONTENT */}
         <div>
           <p className="mb-2 text-[11px] font-bold uppercase tracking-[.35em] text-brand-text">
             {page.subtitle}
@@ -482,7 +619,6 @@ export function AboutBlock({ page }) {
             {page.content}
           </p>
 
-          {/* BUTTON + HANDCRAFTED BADGE */}
           <div className="mt-6 flex items-center justify-between gap-5 border-t border-brand-brown/10 pt-3">
             <Link
               to="/about"
@@ -493,7 +629,6 @@ export function AboutBlock({ page }) {
 
             {badge && (
               <div className="flex items-center gap-2.5 text-brand-text">
-                {/* Shield / handcrafted icon */}
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center">
                   <svg
                     width="22"
@@ -526,7 +661,6 @@ export function AboutBlock({ page }) {
           </div>
         </div>
 
-        {/* RIGHT IMAGE */}
         <div className="relative overflow-hidden rounded-[6px] border border-brand-brown/30 bg-brand-brown/10">
           <SafeImage
             src={imgUrl(page.image)}
